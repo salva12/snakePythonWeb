@@ -1,0 +1,77 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="csrf-token" content="{{ csrf_token }}">
+  <meta name="theme-color" content="#101712">
+  <title>Viborita — Snake Game</title>
+  <link rel="stylesheet" href="{% static 'game/style.css' %}">
+  <script src="{% static 'game/game.js' %}" defer></script>
+</head>
+<body>
+  <main class="layout">
+    <header class="topbar">
+      <a class="brand" href="/" aria-label="Viborita home"><span class="brand-mark">〰</span> viborita<span class="brand-dot">.</span></a>
+      <span class="top-note"><span class="live-dot"></span> A tiny game for a little break</span>
+    </header>
+
+    <section class="intro">
+      <p class="eyebrow">THE CLASSIC, REIMAGINED</p>
+      <h1>One more <span>bite.</span></h1>
+      <p class="subtitle">Guide your snake, grab the apples, and see how long you can last.</p>
+    </section>
+
+    <section class="game-layout" aria-label="Snake game">
+      <div class="game-card">
+        <div class="game-toolbar">
+          <div class="status"><span class="status-dot"></span><span id="game-status" aria-live="polite">Ready when you are</span></div>
+          <div class="score-box"><span class="score-label">SCORE</span><strong id="score">000</strong></div>
+        </div>
+        <div class="board-wrap">
+          <canvas id="game-board" width="600" height="400" aria-label="Snake game board"></canvas>
+          <div class="overlay" id="game-overlay">
+            <div class="overlay-icon" id="overlay-icon">↗</div>
+            <h2 id="overlay-title">Ready to play?</h2>
+            <p id="overlay-copy">Use the arrow keys or WASD to move.</p>
+            <button class="button button-primary" id="start-button" type="button">Start game <span>→</span></button>
+          </div>
+        </div>
+        <div class="game-footer">
+          <span><kbd>↑</kbd><kbd>←</kbd><kbd>↓</kbd><kbd>→</kbd> <span class="hint">or WASD to move</span></span>
+          <span><kbd>Space</kbd> <span class="hint">to pause</span></span>
+        </div>
+        <div class="touch-controls" aria-label="Touch controls">
+          <button type="button" data-direction="ArrowUp" aria-label="Move up">↑</button>
+          <div>
+            <button type="button" data-direction="ArrowLeft" aria-label="Move left">←</button>
+            <button type="button" data-direction="ArrowDown" aria-label="Move down">↓</button>
+            <button type="button" data-direction="ArrowRight" aria-label="Move right">→</button>
+          </div>
+        </div>
+      </div>
+
+      <aside class="sidebar">
+        <section class="side-card how-to">
+          <div class="card-heading"><span class="heading-icon">✳</span><h2>How to play</h2></div>
+          <p>Eat the apples to grow longer. Don't run into yourself or the walls!</p>
+          <div class="tip"><span>↗</span> The more you eat, the faster you get.</div>
+        </section>
+        <section class="side-card leaderboard">
+          <div class="card-heading"><span class="heading-icon trophy">♜</span><h2>Top scores</h2></div>
+          <ol id="score-list" class="score-list">
+            {% for entry in high_scores %}
+              <li><span class="rank">{{ forloop.counter|stringformat:"02d" }}</span><span class="player-name">{{ entry.player_name }}</span><strong>{{ entry.score }}</strong></li>
+            {% empty %}
+              <li class="empty-state">No scores yet. Make the first one!</li>
+            {% endfor %}
+          </ol>
+        </section>
+        <p class="made-with">Made with <span>♥</span> and a little Python</p>
+      </aside>
+    </section>
+    <footer class="page-footer"><span>VIBORITA © 2025</span><span>Take it one bite at a time.</span></footer>
+  </main>
+</body>
+</html>
