@@ -17,6 +17,11 @@ class GameViewTests(TestCase):
         )
         self.assertContains(response, 'id="music-toggle"')
         self.assertContains(response, 'aria-pressed="true"')
+        self.assertContains(response, 'type="image/svg+xml"')
+        self.assertContains(response, "game/snake.svg")
+        self.assertContains(response, "Collect eggs to grow")
+        self.assertContains(response, "cracks after 6.5 seconds")
+        self.assertContains(response, "Portals stay in place")
 
     def test_score_is_saved_and_returned(self):
         response = self.client.post(

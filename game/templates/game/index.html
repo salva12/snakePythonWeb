@@ -8,20 +8,21 @@
   <meta name="score-storage" content="{{ score_storage }}">
   <meta name="theme-color" content="#101712">
   <title>Phytonita — Snake Game</title>
+  <link rel="icon" type="image/svg+xml" href="{% static 'game/snake.svg' %}">
   <link rel="stylesheet" href="{% static 'game/style.css' %}">
   <script src="{% static 'game/game.js' %}" defer></script>
 </head>
 <body>
   <main class="layout">
     <header class="topbar">
-      <a class="brand" href="./" aria-label="Viborita home"><span class="brand-mark">〰</span> viborita<span class="brand-dot">.</span></a>
+      <a class="brand" href="./" aria-label="Phytonita home"><span class="brand-mark">〰</span> Phytonita<span class="brand-dot">.</span></a>
       <span class="top-note"><span class="live-dot"></span> A tiny game for a little break</span>
     </header>
 
     <section class="intro">
       <p class="eyebrow">THE CLASSIC, REIMAGINED</p>
       <h1>One more <span>bite.</span></h1>
-      <p class="subtitle">Guide your snake, grab the apples, and see how long you can last.</p>
+      <p class="subtitle">Guide your snake, collect the eggs, and see how long you can last.</p>
     </section>
 
     <section class="game-layout" aria-label="Snake game">
@@ -56,11 +57,11 @@
       <aside class="sidebar">
         <section class="side-card how-to">
           <div class="card-heading"><span class="heading-icon">✳</span><h2>How to play</h2></div>
-          <p>Eat the apples to grow longer. Don't run into yourself or the walls!</p>
+          <p>Collect eggs to grow. Each egg cracks after 6.5 seconds and reappears elsewhere. Avoid yourself and the walls, or use the portals to cross the board.</p>
           <button class="music-toggle" id="music-toggle" type="button" aria-pressed="true" aria-label="Disable music">
             <span aria-hidden="true">♫</span><span id="music-label">Music on</span>
           </button>
-          <div class="tip"><span>↗</span> The more you eat, the faster you get.</div>
+          <div class="tip"><span>↗</span> Portals stay in place. Enter a color-matched pair to exit heading toward the center.</div>
         </section>
         <section class="side-card leaderboard">
           <div class="card-heading"><span class="heading-icon trophy">♜</span><h2>Top scores</h2></div>
@@ -75,7 +76,7 @@
         <p class="made-with">Made with <span>♥</span> and a little Python</p>
       </aside>
     </section>
-    <footer class="page-footer"><span>VIBORITA © 2025</span><span>Take it one bite at a time.</span></footer>
+    <footer class="page-footer"><span>PHYTONITA © 2026</span><span>Take it one bite at a time.</span></footer>
   </main>
 </body>
 </html>
