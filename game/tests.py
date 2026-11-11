@@ -15,6 +15,8 @@ class GameViewTests(TestCase):
             response.content.decode(),
             r'<meta name="csrf-token" content="[^"]+">',
         )
+        self.assertContains(response, 'id="music-toggle"')
+        self.assertContains(response, 'aria-pressed="true"')
 
     def test_score_is_saved_and_returned(self):
         response = self.client.post(

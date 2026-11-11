@@ -9,6 +9,8 @@
   const overlayCopy = document.querySelector("#overlay-copy");
   const startButton = document.querySelector("#start-button");
   const scoreList = document.querySelector("#score-list");
+  const musicButton = document.querySelector("#music-toggle");
+  const musicLabel = document.querySelector("#music-label");
   const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
   const isStaticSite =
     document.querySelector('meta[name="score-storage"]').content === "local";
@@ -33,6 +35,136 @@
   let score;
   let timer;
   let state = "ready";
+  let audioContext;
+  let musicGain;
+  let musicTimer;
+  let musicStep = 0;
+  let musicEnabled = true;
+  let musicMood = "game";
+
+  const music = {
+    game: {
+      melody: [
+        440, null, 523.25, 659.25, null, 587.33, 523.25, null,
+        392, null, 440, 523.25, null, 392, 329.63, null,
+      ],
+      bass: [110, 87.31, 130.81, 98],
+      tempo: 300,
+    },
+    gameOver: {
+      melody: [
+        392, null, 349.23, null, 329.63, null, 293.66, null,
+        261.63, null, 293.66, null, 261.63, null, 220, null,
+      ],
+      bass: [98, 87.31, 82.41, 73.42],
+      tempo: 420,
+    },
+  };
+
+  function updateMusicButton(enabled) {
+    musicEnabled = enabled;
+    musicButton.setAttribute("aria-pressed", String(enabled));
+    musicButton.setAttribute(
+      "aria-label",
+      enabled ? "Disable music" : "Enable music",
+    );
+    musicLabel.textContent = enabled ? "Music on" : "Music off";
+  }
+
+  function playTone(frequency, duration, waveform, volume) {
+    const now = audioContext.currentTime;
+    const oscillator = audioContext.createOscillator();
+    const envelope = audioContext.createGain();
+    oscillator.type = waveform;
+    oscillator.frequency.setValueAtTime(frequency, now);
+    envelope.gain.setValueAtTime(0.0001, now);
+    envelope.gain.exponentialRampToValueAtTime(volume, now + 0.025);
+    envelope.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+    oscillator.connect(envelope);
+    envelope.connect(musicGain);
+    oscillator.start(now);
+    oscillator.stop(now + duration + 0.02);
+  }
+
+  function playMusicStep() {
+    const track = music[musicMood];
+    const step = musicStep % track.melody.length;
+    const note = track.melody[step];
+    if (note) {
+      playTone(note, musicMood === "gameOver" ? 0.38 : 0.28, "sine", 0.35);
+    }
+    if (step % 4 === 0) {
+      playTone(track.bass[step / 4], 1.1, "triangle", 0.18);
+    }
+    musicStep += 1;
+  }
+
+  async function startMusic(mood = musicMood) {
+    try {
+      if (!audioContext) {
+        audioContext = new window.AudioContext();
+        musicGain = audioContext.createGain();
+        musicGain.gain.value = 0;
+        musicGain.connect(audioContext.destination);
+      }
+      await audioContext.resume();
+      if (!musicEnabled) return;
+
+      window.clearInterval(musicTimer);
+      musicMood = mood;
+      musicStep = 0;
+      const now = audioContext.currentTime;
+      musicGain.gain.cancelScheduledValues(now);
+      musicGain.gain.setValueAtTime(musicGain.gain.value, now);
+      musicGain.gain.linearRampToValueAtTime(0.12, now + 0.3);
+      playMusicStep();
+      musicTimer = window.setInterval(playMusicStep, music[musicMood].tempo);
+    } catch (error) {
+      statusElement.textContent = "Music couldn't be started";
+      console.error("Could not start background music.", error);
+    }
+  }
+
+  function stopMusic() {
+    window.clearInterval(musicTimer);
+    if (musicGain) {
+      const now = audioContext.currentTime;
+      musicGain.gain.cancelScheduledValues(now);
+      musicGain.gain.setValueAtTime(musicGain.gain.value, now);
+      musicGain.gain.linearRampToValueAtTime(0, now + 0.2);
+    }
+  }
+
+  async function toggleMusic() {
+    musicButton.disabled = true;
+    try {
+      if (musicEnabled) {
+        updateMusicButton(false);
+        stopMusic();
+        return;
+      }
+
+      updateMusicButton(true);
+      await startMusic();
+    } finally {
+      musicButton.disabled = false;
+    }
+  }
+
+  if (!("AudioContext" in window)) {
+    musicButton.disabled = true;
+    updateMusicButton(false);
+    musicLabel.textContent = "Music unavailable";
+    musicButton.setAttribute("aria-label", "Music unavailable in this browser");
+  } else {
+    updateMusicButton(true);
+    musicButton.addEventListener("click", () => {
+      toggleMusic().catch((error) => {
+        statusElement.textContent = "Music couldn't be changed";
+        console.error("Could not toggle background music.", error);
+      });
+    });
+  }
 
   function drawBoard() {
     context.fillStyle = "#111a15";
@@ -110,6 +242,7 @@
 
   function startGame() {
     window.clearInterval(timer);
+    if (musicEnabled) startMusic("game");
     snake = [{ x: 8, y: 10 }, { x: 7, y: 10 }, { x: 6, y: 10 }];
     direction = { x: 1, y: 0 };
     nextDirection = direction;
@@ -149,6 +282,7 @@
     if (eating) {
       score += 10;
       scoreElement.textContent = String(score).padStart(3, "0");
+      playEatSound();
       apple = placeApple();
       if (!apple) {
         endGame();
@@ -160,6 +294,16 @@
       snake.pop();
     }
     draw();
+  }
+
+  function playEatSound() {
+    if (!musicEnabled || !audioContext || audioContext.state !== "running") return;
+    playTone(659.25, 0.09, "square", 0.45);
+    window.setTimeout(() => {
+      if (musicEnabled && audioContext.state === "running") {
+        playTone(987.77, 0.14, "square", 0.35);
+      }
+    }, 75);
   }
 
   function pauseGame() {
@@ -207,6 +351,8 @@
   async function endGame() {
     window.clearInterval(timer);
     state = "over";
+    if (musicEnabled) startMusic("gameOver");
+    else musicMood = "gameOver";
     showOverlay("↻", "Game over!", `You scored ${score}. Ready for another round?`, "Play again");
     statusElement.textContent = "Round over";
     try {

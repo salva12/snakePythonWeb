@@ -92,6 +92,10 @@ kbd { display: inline-block; min-width: 20px; margin-right: 2px; padding: 3px 5p
 .heading-icon.trophy { font-size: 15px; }
 .card-heading h2 { margin: 0; font: 600 14px var(--display); }
 .how-to > p { margin: 13px 0 17px; color: var(--muted); font-size: 12px; line-height: 1.65; }
+.music-toggle { min-height: 36px; margin: 0 0 14px; padding: 0 11px; display: inline-flex; align-items: center; gap: 8px; border: 1px solid #3b5434; border-radius: 6px; background: var(--green-dark); color: var(--green); cursor: pointer; font-size: 12px; font-weight: 600; transition: background .15s, border-color .15s; }
+.music-toggle:hover, .music-toggle[aria-pressed="true"] { border-color: var(--green); background: #2b3b27; }
+.music-toggle:focus-visible { outline: 2px solid var(--green); outline-offset: 2px; }
+.music-toggle:disabled { cursor: not-allowed; opacity: .6; }
 .tip { padding: 10px; border: 1px solid #35442e; border-radius: 6px; background: #1b271c; color: #becbb7; font-size: 11px; line-height: 1.5; }
 .tip span { margin-right: 5px; color: var(--green); }
 .score-list { display: grid; gap: 3px; margin: 13px 0 0; padding: 0; list-style: none; }
