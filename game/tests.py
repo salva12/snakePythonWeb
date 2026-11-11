@@ -11,6 +11,10 @@ class GameViewTests(TestCase):
         response = self.client.get(reverse("home"))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Ready to play?")
+        self.assertRegex(
+            response.content.decode(),
+            r'<meta name="csrf-token" content="[^"]+">',
+        )
 
     def test_score_is_saved_and_returned(self):
         response = self.client.post(

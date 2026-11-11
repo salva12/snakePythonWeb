@@ -10,6 +10,8 @@
   const startButton = document.querySelector("#start-button");
   const scoreList = document.querySelector("#score-list");
   const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+  const isStaticSite =
+    document.querySelector('meta[name="score-storage"]').content === "local";
   const cellSize = 20;
   const columns = canvas.width / cellSize;
   const rows = canvas.height / cellSize;
@@ -182,12 +184,42 @@
     overlay.hidden = false;
   }
 
+  function getLocalScores() {
+    const storedScores = window.localStorage.getItem("viboritaScores");
+    if (!storedScores) return [];
+
+    const scores = JSON.parse(storedScores);
+    if (!Array.isArray(scores)) {
+      throw new Error("Saved scores must be a list.");
+    }
+    return scores
+      .filter(
+        (entry) =>
+          entry &&
+          typeof entry.name === "string" &&
+          Number.isInteger(entry.score) &&
+          entry.score >= 0,
+      )
+      .sort((first, second) => second.score - first.score)
+      .slice(0, 10);
+  }
+
   async function endGame() {
     window.clearInterval(timer);
     state = "over";
     showOverlay("↻", "Game over!", `You scored ${score}. Ready for another round?`, "Play again");
     statusElement.textContent = "Round over";
     try {
+      if (isStaticSite) {
+        const scores = getLocalScores();
+        scores.push({ name: "Player", score });
+        scores.sort((first, second) => second.score - first.score);
+        scores.splice(10);
+        window.localStorage.setItem("viboritaScores", JSON.stringify(scores));
+        renderScores(scores);
+        return;
+      }
+
       const response = await fetch("/scores/", {
         method: "POST",
         headers: {
@@ -204,6 +236,15 @@
     } catch (error) {
       statusElement.textContent = "Round over · score couldn't be saved";
       console.error("Could not save the game score.", error);
+    }
+  }
+
+  if (isStaticSite) {
+    try {
+      renderScores(getLocalScores());
+    } catch (error) {
+      statusElement.textContent = "Saved scores couldn't be loaded";
+      console.error("Could not load saved game scores.", error);
     }
   }
 

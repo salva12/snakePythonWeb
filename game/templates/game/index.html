@@ -5,6 +5,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="csrf-token" content="{{ csrf_token }}">
+  <meta name="score-storage" content="{{ score_storage }}">
   <meta name="theme-color" content="#101712">
   <title>Viborita — Snake Game</title>
   <link rel="stylesheet" href="{% static 'game/style.css' %}">
@@ -13,7 +14,7 @@
 <body>
   <main class="layout">
     <header class="topbar">
-      <a class="brand" href="/" aria-label="Viborita home"><span class="brand-mark">〰</span> viborita<span class="brand-dot">.</span></a>
+      <a class="brand" href="./" aria-label="Viborita home"><span class="brand-mark">〰</span> viborita<span class="brand-dot">.</span></a>
       <span class="top-note"><span class="live-dot"></span> A tiny game for a little break</span>
     </header>
 
