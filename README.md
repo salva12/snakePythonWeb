@@ -1,4 +1,4 @@
-# Viborita
+# Phytonita
 
 A browser-based Snake game served by Django. The game runs in the browser, and Django stores the top scores in SQLite.
 
